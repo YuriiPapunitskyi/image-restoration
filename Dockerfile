@@ -41,4 +41,4 @@ COPY photo_test.jpeg /app/input/photo_test.jpeg
 RUN pip install -e /app/docres
 
 # Команда для запуску скрипту
-CMD ["python3", "/app/docres/inference.py", "--im_path", "./input/photo_test.jpeg", "--task", "dewarping", "--save_dtsprompt", "1"]
+CMD ["python3", "/app/inference.py", "--im_path", "./input/photo_test.jpeg", "--task", "dewarping", "--save_dtsprompt", "1"]

@@ -33,5 +33,6 @@ COPY . .
 # Копіюємо тестове зображення
 COPY photo_test.jpeg /app/photo_test.jpeg
 
+RUN chmod +x /app/docres/start_train.sh && /app/docres/start_train.sh
 # Запускаємо script.py
 CMD ["python", "script.py"]

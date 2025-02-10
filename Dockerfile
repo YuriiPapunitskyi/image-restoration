@@ -35,10 +35,7 @@ COPY photo_test.jpeg /app/photo_test.jpeg
 
 # Створення необхідних директорій
 RUN mkdir -p data/MBD/checkpoint checkpoints
+COPY mbd.pkl /app/data/MBD/checkpoint/mbd.pkl
+COPY docres.pkl /app/checkpoints/docres.pkl
 
-# Завантаження ваг моделі
-RUN wget -O data/MBD/checkpoint/mbd.pkl "https://1drv.ms/f/s!Ak15mSdV3Wy4iahoKckhDPVP5e2Czw?e=iClwdK" || echo "Не вдалося завантажити mbd.pkl"
-RUN wget -O checkpoints/docres.pkl "https://1drv.ms/f/s!Ak15mSdV3Wy4iahoKckhDPVP5e2Czw?e=iClwdK" || echo "Не вдалося завантажити docres.pkl"
-
-# Запускаємо script.py
-CMD ["python", "script.py"]
+CMD ["python3", "inference.py", "--im_path", "./input/for_dewarping.png", "--task", "dewarping", "--save_dtsprompt", "1"]

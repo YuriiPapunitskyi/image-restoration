@@ -1,38 +1,27 @@
-# Використовуємо офіційний Python-образ
-FROM python:3.9
+FROM nvidia/cuda:12.0-base
 
-# Встановлюємо робочу директорію
+# Встановлення необхідних пакетів
+RUN apt-get update && apt-get install -y \
+    wget \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Створення робочої директорії
 WORKDIR /app
 
-# Встановлюємо необхідні бібліотеки для OpenCV та Git
-RUN apt-get update && apt-get install -y \
-    libgl1-mesa-glx \
-    libglib2.0-0 \
-    libsm6 \
-    libxext6 \
-    libxrender1 \
-    git && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Копіюємо весь код у контейнер
+COPY . /app
 
-# Копіюємо requirements.txt
-COPY requirements.txt .
+# Встановлення залежностей
+RUN pip3 install -r requirements.txt
 
-# Встановлюємо залежності
-RUN pip install --no-cache-dir -r requirements.txt
+# Створення необхідних директорій
+RUN mkdir -p data/MBD/checkpoint checkpoints
 
-# Клонуємо репозиторій DocRes
-RUN git clone https://github.com/zzzhang-jx/docres.git /app/docres
+# Завантаження ваг моделі
+RUN wget -O data/MBD/checkpoint/mbd.pkl "https://1drv.ms/f/s!Ak15mSdV3Wy4iahoKckhDPVP5e2Czw?e=iClwdK" || echo "Не вдалося завантажити mbd.pkl"
+RUN wget -O checkpoints/docres.pkl "https://1drv.ms/f/s!Ak15mSdV3Wy4iahoKckhDPVP5e2Czw?e=iClwdK" || echo "Не вдалося завантажити docres.pkl"
 
-# Додаємо docres у Python-шлях
-ENV PYTHONPATH="/app/docres:${PYTHONPATH}"
-
-# Копіюємо код у контейнер
-COPY . .
-
-# Копіюємо тестове зображення
-COPY photo_test.jpeg /app/photo_test.jpeg
-
-RUN chmod +x /app/docres/start_train.sh && /app/docres/start_train.sh
-# Запускаємо script.py
-CMD ["python", "script.py"]
+# Команда за замовчуванням
+CMD ["python3", "inference.py", "--im_path", "./input/for_dewarping.png", "--task", "dewarping", "--save_dtsprompt", "1"]

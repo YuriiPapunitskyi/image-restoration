@@ -22,20 +22,23 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Клонуємо репозиторій DocRes
-RUN git clone https://github.com/zzzhang-jx/docres.git /app/docres
+RUN git clone https://github.com/ZZZHANG-jx/DocRes.git /app/docres
 
 # Додаємо docres у Python-шлях
 ENV PYTHONPATH="/app/docres:${PYTHONPATH}"
 
-# Копіюємо код у контейнер
-COPY . .
+# Створюємо необхідні директорії
+RUN mkdir -p data/MBD/checkpoint checkpoints input restorted
 
-# Копіюємо тестове зображення
-COPY photo_test.jpeg /app/photo_test.jpeg
-
-# Створення необхідних директорій
-RUN mkdir -p data/MBD/checkpoint checkpoints
+# Копіюємо файли моделей (якщо вони є локально)
 COPY mbd.pkl /app/data/MBD/checkpoint/mbd.pkl
 COPY docres.pkl /app/checkpoints/docres.pkl
 
-CMD ["python3", "inference.py", "--im_path", "./input/for_dewarping.png", "--task", "dewarping", "--save_dtsprompt", "1"]
+# Копіюємо тестове зображення
+COPY photo_test.jpeg /app/input/photo_test.jpeg
+
+# Встановлюємо залежності для DocRes (якщо потрібно)
+RUN pip install -e /app/docres
+
+# Команда для запуску скрипту
+CMD ["python3", "inference.py", "--im_path", "./input/photo_test.jpeg", "--task", "dewarping", "--save_dtsprompt", "1"]
